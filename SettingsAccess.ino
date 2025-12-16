@@ -13,16 +13,17 @@ bool getSettings(){
   Serial.println("read settings");
   if(readEeprom(doc)){
     jsonToVars(doc);
-    String jsonVars;
-    serializeJsonPretty(doc, jsonVars);
-    Serial.println(jsonVars);
+//    String jsonVars;
+//    serializeJsonPretty(doc, jsonVars);
+//    Serial.println(jsonVars);
     return true;
   } else {
-    String msg = "EEPROM read err: vars from config";
-    Serial.println(msg);
-//    scrollString(msg, 1); // given 8x8 matrix chain
+    Serial.println("EEPROM read err: vars from config");
     ssid = m_ssid;
     password = m_password;
+    mqtt_server = m_mqtt_server;
+    mqtt_username = m_mqtt_username;
+    mqtt_password = m_mqtt_password;
   }
   return false;
 }
@@ -40,8 +41,8 @@ void readSettings(){
 void saveSettings() {
   JsonDocument doc = varsToJson();
   writeEeprom(doc);
-  Serial.println("check read:");
-  readSettings();
+//  Serial.println("check read:");
+//  readSettings();
 }
 
 
@@ -49,6 +50,13 @@ JsonDocument varsToJson() {
   JsonDocument doc;
   doc["ap"] = ssid;
   doc["pw"] = password;
+  doc["br"] = brightness;
+  doc["or"] = orientation;
+  doc["he"] = headup;
+  doc["mq"] = mqtt_active;
+  doc["mqsrv"] = mqtt_server;
+  doc["mqusr"] = mqtt_username;
+  doc["mqpwd"] = mqtt_password;
   doc["tv"] = "thingon2025_gps";
   return doc;
 }
@@ -57,8 +65,29 @@ void jsonToVars(JsonDocument doc) {
   if (doc.containsKey("ap")) {
     ssid = doc["ap"].as<String>();
   }
-  if (doc.containsKey("pw")) {
+  if (doc.containsKey("pw")) {  
     password = doc["pw"].as<String>();
+  }
+  if (doc.containsKey("br")) {
+    adjustBrightness(doc["br"]);
+  }
+  if (doc.containsKey("he")) {
+    headup = doc["he"].as<bool>();
+  }
+  if (doc.containsKey("or")) {
+    orientation = doc["or"].as<bool>();
+  }
+  if (doc.containsKey("mq")) {
+    mqtt_active = doc["mq"].as<bool>();
+  }
+  if (doc.containsKey("mqsrv")) {
+    mqtt_server = doc["mqsrv"].as<String>();
+  }
+  if (doc.containsKey("mqusr")) {
+    mqtt_username = doc["mqusr"].as<String>();
+  }
+  if (doc.containsKey("mqpwd")) {
+    mqtt_password = doc["mqpwd"].as<String>();
   }
 //    updateLedVars(doc);
 }

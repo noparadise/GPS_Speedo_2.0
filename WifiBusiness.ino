@@ -10,7 +10,7 @@ const String applying = "applying changes";
 int found_SSID;
 
 // endpoints to index for /
-const String localPaths[] = {"wifi", "gps"};
+const String localPaths[] = {"wifi", "gps", "settings"};
 
 bool manageConnection(){
   if (connectWifi()){
@@ -49,6 +49,7 @@ void startServer(){
   
   server.on("/", indexPage);
   server.on("/wifi", handleSetup);
+  server.on("/settings", handleSettings);
 
   // custom handlers in pageHandlers ...
   server.on("/gps", handleGps);
@@ -60,16 +61,6 @@ void handleHttp(){
   server.handleClient();
 }
 
-void indexPage  () {
-  Serial.println("serve /");
-  String mpage = pageHeader(WiFi.hostname(), ssid);
-  String paths = "";
-  for (byte idx = 0; idx < sizeof(localPaths) / sizeof(localPaths[0]); idx++) {
-    paths += listItem(webLink("/" + localPaths[idx],  localPaths[idx]));
-  }
-  mpage += wrapUList(paths);
-  server.send(200, mime_type, mpage);
-}
 void handleSetup() {
   Serial.println("serve /wifi");
   String mpage = pageHeader(WiFi.hostname(), ssid) + htmHead(3, String(found_SSID) + " networks found");

@@ -35,8 +35,12 @@ String actionBtnForm(String action, String hid_name, String hid_val, String mess
   return formStart(action, hid_name, hid_val) + formSubmitEnd(message);
 }
 
-String formTextInput(String title, String id, String value) {
-  return title + ": <input type='text' name='" + id + "' value='" + value + "'/>";
+String formTextInput(String title, String id, String val) {
+  return title + ": <input type='text' name='" + id + "' value='" + val + "'/>";
+}
+
+String formPassInput(String title, String id, String val) {
+  return title + ": <input type='password' name='" + id + "' value='" + val + "'/>";
 }
 
 String formCheckedbox(String id, String legend, bool checked, bool submit) {

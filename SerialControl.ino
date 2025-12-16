@@ -1,5 +1,7 @@
 bool processSerial(){
-  // return true if changes made which require saving to EEPROM
+  
+  // return result = true only if changes made which require saving to EEPROM
+  
   bool result = false;
   
   String inData = "";
@@ -34,18 +36,34 @@ bool processSerial(){
             if (inchar == '^')
             {
               adjustBrightness(brightness+1); 
+              result = true;
             } else 
             if (inchar == '%')
             {
               adjustBrightness(brightness-1);
+              result = true;
             } else 
             if (inchar == 'R')
             {
               readSettings();
+            } else 
+            if (inchar == 'm')
+            {
+              mqtt_active = !mqtt_active;
+              if (is_connected && mqtt_active){
+                setup_mqtt();
+              } else {
+                disconnect_mqtt();
+              }
             } else
             if (inchar == 'X')
             {
                clearEprom();  
+            } else
+            if (inchar == '!')
+            {
+               Serial.println("Reset device");
+               ESP.restart(); //ESP.reset();
             }
           }
         }
@@ -80,8 +98,10 @@ void printHelp(){
   Serial.println("i : status info");
   Serial.println("^ : brighter");
   Serial.println("% : dimmer");
-  Serial.println("#ssid/password : set wifi credentials");
+  Serial.println("m : toggle MQTT active");
+  Serial.println("! : reset");
   Serial.println("X : delete saved settings");
+  Serial.println("#ssid/password : set wifi credentials");
   Serial.println("\n");
 }
 

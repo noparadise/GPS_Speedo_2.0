@@ -27,9 +27,9 @@ String local_ip;
 String host_name;
 
 /******* MQTT Broker Connection Details *******/
-const char* mqtt_server = "653c384af3e04c82bb411d8545dc7fc4.s1.eu.hivemq.cloud";
-const char* mqtt_username = "GPS_speedo";
-const char* mqtt_password = "G0nz4l3z";
+String mqtt_server = "653c384af3e04c82bb411d8545dc7fc4.s1.eu.hivemq.cloud";
+String mqtt_username = "GPS_speedo";
+String mqtt_password = "G0nz4l3z";
 const int mqtt_port = 8883;
 /**** Secure WiFi Connectivity Initialisation *****/
 WiFiClientSecure espClient;
@@ -38,12 +38,7 @@ WiFiClientSecure espClient;
 PubSubClient client(espClient);
 bool mqtt_active = false;
 
-/** turn on/off whole network business  **/
-bool is_connected = false;
-
 #define panels 2
-#define orientation false
-#define headup false
 
 #define DIN 16 // D0 GPIO 16
 #define CS 5 // D1 GPIO 5
@@ -61,7 +56,12 @@ SoftwareSerial gpsSerial(RX, TX);
 LedControl lc=LedControl(DIN,CLK,CS,panels);
 
 int potVal = 0; // 0-1024
+/** turn on/off whole network business  **/
+bool is_connected = false;
+
 int brightness = 15;
+bool orientation = false;
+bool headup  = false;
 
 double LAST_LAT = 51.508131, LAST_LON = -0.128002;
 int cardinal_led = 0;
@@ -81,11 +81,6 @@ void setup() {
   }
   Serial.println("\n\nSerial free");
 
-/*
-  //  for proto reset   
-  clearEprom();  
-/**/
-
   getSettings();
   
   initPanels();
@@ -104,11 +99,19 @@ void setup() {
   Serial.println("\nSoftware Serial started");
 
   /// connectivity
+  
   is_connected = manageConnection();
   if (is_connected && mqtt_active){
     setup_mqtt();
   }
   startServer();
+
+//  // display connection details
+//  if(is_connected){
+//    scrollString("connected",1);
+//  } else {
+//    scrollString("AP mode", 1);
+//  }
 }
 
 void loop() {

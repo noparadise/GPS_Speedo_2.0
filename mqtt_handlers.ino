@@ -1,12 +1,8 @@
 
 
-
-
-/************* Set up MQTT ***********/
 void setup_mqtt(){
-  
   espClient.setInsecure();
-  client.setServer(mqtt_server, mqtt_port);
+  client.setServer(mqtt_server.c_str(), mqtt_port);
   client.setCallback(callback);
 }
 
@@ -18,7 +14,7 @@ void reconnect() {
     String clientId = "ESP8266Client-";   // Create a random client ID
     clientId += host_name; //String(random(0xffff), HEX);
     // Attempt to connect
-    if (client.connect(clientId.c_str(), mqtt_username, mqtt_password)) {
+    if (client.connect(clientId.c_str(), mqtt_username.c_str(), mqtt_password.c_str())) {
       Serial.println("connected");
       client.publish("connection", host_name.c_str());
       String m_topic = host_name + "_control";
@@ -30,6 +26,11 @@ void reconnect() {
       delay(5000);
     }
   }
+}
+
+void disconnect_mqtt(){
+  Serial.println("\ndisconnect MQTT");
+  client.disconnect();
 }
 
 void mqUpdate(){
@@ -57,7 +58,6 @@ void mqUpdate(){
         doc["hdinv"] = 1/gps.hdop.value();
         doc["bri"] = brightness;
 
-        
         //128 is one line - may need to extend
         char mqtt_message[256];
         serializeJson(doc, mqtt_message);
@@ -68,14 +68,13 @@ void mqUpdate(){
       ping_time = millis();
 }
 
-/**** Method for Publishing MQTT Messages **********/
 void publishMessage(const char* topic, String payload , boolean retained){
   if (client.publish(topic, payload.c_str(), true))
 //      Serial.println("Message published to /"+String(topic)+": "+payload);
       Serial.print("*");
 }
 
-/***** Call back Method for Receiving MQTT messages // ****/
+/***** Call back for MQTT message receipt // ****/
 
 void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");

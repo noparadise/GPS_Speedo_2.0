@@ -8,6 +8,34 @@ static const byte digits[10][6] = {
   {5,B01110110,B10001001,B10001001,B10001001,B01110110},{5,B01001110,B10010001,B10010001,B10010001,B01111110}
   };
 
+static const byte chvU[4] = {3,B01000100,B00101000,B00010000};
+static const byte chvD[4] = {3,B00010000,B00101000,B01000100};
+static const byte oParen[3] = {2,B01111110,B10000001};
+static const byte cParen[3] = {2,B10000001,B01111110};
+static const byte dash[4] = {3,B00010000,B00010000,B00010000};
+static const byte colon[2] = {1,B01001000};
+static const byte apos[2] = {1,B00000011};
+static const byte comma[3] = {2,B10000000,B01000000};
+static const byte sqOpen[3] = {2,B11111111,B10000001};
+static const byte sqClose[3] = {2,B10000001,B11111111};
+static const byte que[6] = {5,B00000010,B00000001,B10110001,B00001001,B00000110};
+static const byte pling[2] = {1,B10111111};
+static const byte space[2] = {1,0};
+static const byte dot[2] = {1,128};
+
+
+std::unordered_map<int, const byte*> specials = {    
+    {-2, dot}, {-3, dash}, {-4, comma}, {-7, cParen}, {-8, oParen}, {-9, apos}, {-15, pling},{-16,space},
+    {10, colon}, {12, chvD}, {14, chvU}, {15, que}, {43, sqOpen}, {45, sqClose}
+};
+ const byte* getNonAlphaNum(int value) {
+    auto it = specials.find(value);
+    return (it != specials.end()) ? it->second : nullptr;
+}
+/**
+ * end of potentially redundant text based stuff
+ */
+
 void initPanels(){
   Serial.println("initialising panels");
   for(int matrixId = 0; matrixId < panels; matrixId++){
@@ -17,7 +45,6 @@ void initPanels(){
 }
 
 void adjustBrightness(int val){
-  Serial.println(val);
   brightness = constrain(val, 0, 15);
   for(int matrixId = 0; matrixId < panels; matrixId++){
     lc.setIntensity(matrixId,brightness);
