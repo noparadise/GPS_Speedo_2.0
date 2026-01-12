@@ -10,9 +10,11 @@ void indexPage  () {
     paths += listItem(webLink("/" + localPaths[idx],  localPaths[idx]));
   }
   mpage += wrapUList(paths);
-  
-  String latlon = String(gps.location.lat(),6) + "," + String(gps.location.lng(),6); //comma seperated lat lon
-  mpage += mapEmbed(latlon, 'k', 20);
+
+  if(gps.location.isValid()){
+    String latlon = String(gps.location.lat(),6) + "," + String(gps.location.lng(),6); //comma seperated lat lon
+    mpage += mapEmbed(latlon, 'k', 20);
+  }
   server.send(200, mime_type, mpage);
 }
 
@@ -23,19 +25,24 @@ void handleGps() {
   String mpage = pageHeader(WiFi.hostname(), ssid);
   String formTemplate = "";
 
-  String latlon = String(gps.location.lat(),6) + "," + String(gps.location.lng(),6); //comma seperated lat lon
   mpage += htmHead(1, "GPS Speedometer");
+  if(gps.location.isValid()){
+    String latlon = String(gps.location.lat(),6) + "," + String(gps.location.lng(),6); //comma seperated lat lon
+    mpage += "<p>speed: " + String(ground_speed) + "mph";
+    mpage += "<p>time: " + hrTime();
+    mpage += "<p>coords: " + latlon;
+  
+    mpage += "<p>sats: " + String(gps.satellites.value());
+    mpage += "<p>hdop: " + String(gps.hdop.value() / 100.0);
+    mpage += "<p>1/hdop: " + String(1/gps.hdop.value());
 
-  mpage += "<p>speed: " + String(ground_speed) + "mph";
-  mpage += "<p>time: " + hrTime();
-  mpage += "<p>coords: " + latlon;
-
-  mpage += "<p>sats: " + String(gps.satellites.value());
-  mpage += "<p>hdop: " + String(gps.hdop.value() / 100.0);
-  mpage += "<p>1/hdop: " + String(1/gps.hdop.value());
-  mpage += "<p>brightness: " + String(brightness);
-
-  mpage += mapEmbed(latlon, 'm', 15);
+    mpage += mapEmbed(latlon, 'm', 15);
+  } else {
+  
+    mpage += "<p>GPS location is invalid";
+    mpage += "<p>sats: " + String(gps.satellites.value());
+    mpage += "<p>hdop: " + String(gps.hdop.value() / 100.0);
+  }
   
   server.send(200, mime_type, mpage);
 }
