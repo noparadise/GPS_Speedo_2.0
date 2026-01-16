@@ -90,6 +90,8 @@ void printStatus(){
   Serial.println(satcount);
   Serial.print("Brightness: ");
   Serial.println(brightness);
+  Serial.print("IP address: ");
+  Serial.println(local_ip);
 }
 
 void printHelp(){
